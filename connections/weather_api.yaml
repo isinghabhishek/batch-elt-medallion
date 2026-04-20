@@ -1,0 +1,71 @@
+# connections/weather_api.yaml
+# ==============================
+# Airbyte connection configuration for the Open-Meteo Weather REST API source.
+#
+# Source  : Open-Meteo public weather API (no authentication required)
+#           https://open-meteo.com/en/docs
+# Dest    : MinIO S3-compatible storage → bronze/weather_api/weather_forecast/
+# Format  : Parquet
+# Sync    : Full refresh (triggered manually by Airflow)
+#
+# To apply via Airbyte API:
+#   POST http://localhost:8001/api/v1/connections
+#   Body: contents of this file (converted to JSON)
+#
+# Airflow Variable: weather_connection_id
+#   Set in Airflow UI: Admin > Variables > weather_connection_id = <uuid>
+
+# Airbyte Connection Configuration: Weather API Source
+# This configuration defines a REST API source for Open-Meteo Weather API
+# Documentation: https://open-meteo.com/en/docs
+
+name: weather-api-source
+source:
+  type: source-http
+  config:
+    name: Open-Meteo Weather API
+    url_base: https://api.open-meteo.com/v1
+    streams:
+      - name: weather_forecast
+        http_method: GET
+        path: /forecast
+        primary_key: []
+        request_parameters:
+          latitude: "40.7128"  # New York City
+          longitude: "-74.0060"
+          current: "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
+          hourly: "temperature_2m,relative_humidity_2m,precipitation"
+          daily: "temperature_2m_max,temperature_2m_min,precipitation_sum"
+          timezone: "America/New_York"
+          forecast_days: "7"
+        schema:
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+            timezone:
+              type: string
+            current:
+              type: object
+            hourly:
+              type: object
+            daily:
+              type: object
+
+destination:
+  type: destination-s3
+  config:
+    s3_endpoint: http://minio:9000
+    s3_bucket_name: bronze
+    s3_bucket_path: weather_api/weather_forecast
+    access_key_id: ${MINIO_ROOT_USER}
+    secret_access_key: ${MINIO_ROOT_PASSWORD}
+    format:
+      format_type: Parquet
+    s3_path_format: ${NAMESPACE}/${STREAM_NAME}/${YEAR}_${MONTH}_${DAY}_${EPOCH}_
+
+sync_mode: full_refresh
+schedule:
+  schedule_type: manual  # Triggered by Airflow

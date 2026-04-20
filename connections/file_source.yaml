@@ -1,0 +1,82 @@
+# connections/file_source.yaml
+# ==============================
+# Airbyte connection configurations for local CSV and JSON file sources.
+#
+# Two sources defined in this file:
+#
+#   file-source-local     : Reads products.csv from the mounted data/ directory
+#                           15 products across Electronics, Furniture, Stationery
+#
+#   file-source-inventory : Reads inventory_movements.json from data/ directory
+#                           12 inventory transactions (sales and restocks)
+#
+# Dest    : MinIO S3-compatible storage → bronze/file_source/
+# Format  : Parquet
+# Sync    : Full refresh (triggered manually by Airflow)
+#
+# The data/ directory is mounted into the Airbyte worker container.
+# Airflow Variable: file_connection_id
+#   Set in Airflow UI: Admin > Variables > file_connection_id = <uuid>
+
+# Airbyte Connection Configuration: File Source
+# This configuration defines a file-based source for CSV and JSON files
+
+name: file-source-local
+source:
+  type: source-file
+  config:
+    dataset_name: local_files
+    format: csv
+    url: /data/products.csv
+    provider:
+      storage: local
+    reader_options: |
+      {
+        "encoding": "utf-8",
+        "sep": ",",
+        "header": 0
+      }
+
+destination:
+  type: destination-s3
+  config:
+    s3_endpoint: http://minio:9000
+    s3_bucket_name: bronze
+    s3_bucket_path: file_source
+    access_key_id: ${MINIO_ROOT_USER}
+    secret_access_key: ${MINIO_ROOT_PASSWORD}
+    format:
+      format_type: Parquet
+    s3_path_format: ${NAMESPACE}/${STREAM_NAME}/${YEAR}_${MONTH}_${DAY}_${EPOCH}_
+
+sync_mode: full_refresh
+schedule:
+  schedule_type: manual  # Triggered by Airflow
+
+---
+# Additional file source for JSON inventory data
+name: file-source-inventory
+source:
+  type: source-file
+  config:
+    dataset_name: inventory_movements
+    format: jsonl
+    url: /data/inventory_movements.json
+    provider:
+      storage: local
+
+destination:
+  type: destination-s3
+  config:
+    s3_endpoint: http://minio:9000
+    s3_bucket_name: bronze
+    s3_bucket_path: file_source
+    access_key_id: ${MINIO_ROOT_USER}
+    secret_access_key: ${MINIO_ROOT_PASSWORD}
+    format:
+      format_type: Parquet
+    s3_path_format: ${NAMESPACE}/${STREAM_NAME}/${YEAR}_${MONTH}_${DAY}_${EPOCH}_
+
+sync_mode: full_refresh
+schedule:
+  schedule_type: manual  # Triggered by Airflow

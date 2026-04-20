@@ -1,0 +1,70 @@
+# connections/postgres_source.yaml
+# ==================================
+# Airbyte connection configuration for the PostgreSQL seed database source.
+#
+# Source  : PostgreSQL seed_db (running in the postgres Docker container)
+#           Tables: customers, orders
+# Dest    : MinIO S3-compatible storage → bronze/postgres_source/
+# Format  : Parquet
+# Sync    : Incremental (cursor field: updated_at)
+#
+# Incremental sync ensures only new/updated records are loaded on each run,
+# making the pipeline efficient for large datasets.
+#
+# To apply via Airbyte API:
+#   POST http://localhost:8001/api/v1/connections
+#
+# Airflow Variable: postgres_connection_id
+#   Set in Airflow UI: Admin > Variables > postgres_connection_id = <uuid>
+
+# Airbyte Connection Configuration: PostgreSQL Source
+# This configuration defines a PostgreSQL source for the seed database
+
+name: postgres-seed-db-source
+source:
+  type: source-postgres
+  config:
+    host: postgres
+    port: 5432
+    database: seed_db
+    username: postgres
+    password: ${POSTGRES_PASSWORD}
+    schemas:
+      - public
+    replication_method:
+      method: Standard
+      replication_slot: airbyte_slot
+      publication: airbyte_publication
+    ssl_mode:
+      mode: disable
+    tunnel_method:
+      tunnel_method: NO_TUNNEL
+    
+    # Tables to sync
+    tables:
+      - name: customers
+        sync_mode: incremental
+        cursor_field: updated_at
+        primary_key:
+          - customer_id
+      - name: orders
+        sync_mode: incremental
+        cursor_field: updated_at
+        primary_key:
+          - order_id
+
+destination:
+  type: destination-s3
+  config:
+    s3_endpoint: http://minio:9000
+    s3_bucket_name: bronze
+    s3_bucket_path: postgres_source
+    access_key_id: ${MINIO_ROOT_USER}
+    secret_access_key: ${MINIO_ROOT_PASSWORD}
+    format:
+      format_type: Parquet
+    s3_path_format: ${NAMESPACE}/${STREAM_NAME}/${YEAR}_${MONTH}_${DAY}_${EPOCH}_
+
+sync_mode: incremental
+schedule:
+  schedule_type: manual  # Triggered by Airflow
