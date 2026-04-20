@@ -1,0 +1,320 @@
+{
+  "dashboard_title": "Pipeline Metrics",
+  "description": "Operational metrics for the Medallion Pipeline including DAG runs, row counts, and data quality checks",
+  "slug": "pipeline-metrics",
+  "published": true,
+  "css": "",
+  "json_metadata": {
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300,
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "filter_scopes": {},
+    "default_filters": "{}",
+    "chart_configuration": {}
+  },
+  "position_json": {
+    "DASHBOARD_VERSION_KEY": "v2",
+    "GRID_ID": {
+      "type": "GRID",
+      "id": "GRID_ID",
+      "children": [
+        "ROW-header",
+        "ROW-dag-runs",
+        "ROW-row-counts",
+        "ROW-dq-checks",
+        "ROW-duration"
+      ],
+      "parents": ["ROOT_ID"]
+    },
+    "ROOT_ID": {
+      "type": "ROOT",
+      "id": "ROOT_ID",
+      "children": ["GRID_ID"]
+    },
+    "ROW-header": {
+      "type": "ROW",
+      "id": "ROW-header",
+      "children": ["HEADER-1"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "HEADER-1": {
+      "type": "HEADER",
+      "id": "HEADER-1",
+      "meta": {
+        "text": "Pipeline Metrics Dashboard"
+      }
+    },
+    "ROW-dag-runs": {
+      "type": "ROW",
+      "id": "ROW-dag-runs",
+      "children": ["CHART-dag-run-history"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "CHART-dag-run-history": {
+      "type": "CHART",
+      "id": "CHART-dag-run-history",
+      "meta": {
+        "width": 12,
+        "height": 50,
+        "chartId": "dag_run_history"
+      }
+    },
+    "ROW-row-counts": {
+      "type": "ROW",
+      "id": "ROW-row-counts",
+      "children": ["CHART-row-counts-by-layer"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "CHART-row-counts-by-layer": {
+      "type": "CHART",
+      "id": "CHART-row-counts-by-layer",
+      "meta": {
+        "width": 12,
+        "height": 50,
+        "chartId": "row_counts_by_layer"
+      }
+    },
+    "ROW-dq-checks": {
+      "type": "ROW",
+      "id": "ROW-dq-checks",
+      "children": ["CHART-dq-pass-fail"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "CHART-dq-pass-fail": {
+      "type": "CHART",
+      "id": "CHART-dq-pass-fail",
+      "meta": {
+        "width": 12,
+        "height": 50,
+        "chartId": "dq_pass_fail_history"
+      }
+    },
+    "ROW-duration": {
+      "type": "ROW",
+      "id": "ROW-duration",
+      "children": ["CHART-pipeline-duration"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "CHART-pipeline-duration": {
+      "type": "CHART",
+      "id": "CHART-pipeline-duration",
+      "meta": {
+        "width": 12,
+        "height": 50,
+        "chartId": "pipeline_duration"
+      }
+    }
+  },
+  "slices": [
+    {
+      "slice_name": "DAG Run History",
+      "viz_type": "table",
+      "datasource_name": "pipeline_runs",
+      "params": {
+        "datasource": "pipeline_runs",
+        "viz_type": "table",
+        "slice_id": null,
+        "url_params": {},
+        "granularity_sqla": "start_time",
+        "time_grain_sqla": "P1D",
+        "time_range": "Last 30 days",
+        "query_mode": "aggregate",
+        "groupby": [],
+        "metrics": [],
+        "all_columns": [
+          "dag_run_id",
+          "start_time",
+          "end_time",
+          "status",
+          "bronze_row_count",
+          "silver_row_count",
+          "gold_row_count",
+          "duration_seconds"
+        ],
+        "percent_metrics": [],
+        "adhoc_filters": [],
+        "order_by_cols": [["start_time", false]],
+        "row_limit": 100,
+        "server_page_length": 10,
+        "order_desc": true,
+        "table_timestamp_format": "%Y-%m-%d %H:%M:%S",
+        "show_cell_bars": true,
+        "color_pn": true
+      },
+      "description": "Recent DAG run history with status and row counts"
+    },
+    {
+      "slice_name": "Row Counts by Layer",
+      "viz_type": "dist_bar",
+      "datasource_name": "pipeline_runs",
+      "params": {
+        "datasource": "pipeline_runs",
+        "viz_type": "dist_bar",
+        "slice_id": null,
+        "url_params": {},
+        "granularity_sqla": "start_time",
+        "time_grain_sqla": "P1D",
+        "time_range": "Last 30 days",
+        "metrics": [
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "bronze_row_count",
+              "type": "BIGINT"
+            },
+            "aggregate": "AVG",
+            "label": "Avg Bronze Rows"
+          },
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "silver_row_count",
+              "type": "BIGINT"
+            },
+            "aggregate": "AVG",
+            "label": "Avg Silver Rows"
+          },
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "gold_row_count",
+              "type": "BIGINT"
+            },
+            "aggregate": "AVG",
+            "label": "Avg Gold Rows"
+          }
+        ],
+        "adhoc_filters": [],
+        "groupby": ["status"],
+        "columns": [],
+        "row_limit": 10000,
+        "contribution": false,
+        "color_scheme": "supersetColors",
+        "show_legend": true,
+        "show_bar_value": true,
+        "bar_stacked": false,
+        "order_bars": false,
+        "y_axis_format": ",d",
+        "y_axis_label": "Row Count",
+        "show_controls": true,
+        "x_axis_label": "Pipeline Status",
+        "bottom_margin": "auto",
+        "x_ticks_layout": "auto",
+        "reduce_x_ticks": false
+      },
+      "description": "Average row counts by layer and pipeline status"
+    },
+    {
+      "slice_name": "DQ Check Pass/Fail History",
+      "viz_type": "line",
+      "datasource_name": "dq_results",
+      "params": {
+        "datasource": "dq_results",
+        "viz_type": "line",
+        "slice_id": null,
+        "url_params": {},
+        "granularity_sqla": "check_timestamp",
+        "time_grain_sqla": "P1D",
+        "time_range": "Last 30 days",
+        "metrics": [
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "check_id",
+              "type": "STRING"
+            },
+            "aggregate": "COUNT",
+            "label": "Check Count"
+          }
+        ],
+        "adhoc_filters": [],
+        "groupby": ["status", "layer"],
+        "limit": 25,
+        "row_limit": 50000,
+        "timeseries_limit_metric": null,
+        "order_desc": true,
+        "contribution": false,
+        "color_scheme": "supersetColors",
+        "show_legend": true,
+        "rich_tooltip": true,
+        "show_markers": true,
+        "line_interpolation": "linear",
+        "x_axis_format": "smart_date",
+        "x_axis_showminmax": false,
+        "y_axis_format": ",d",
+        "y_axis_label": "Number of Checks",
+        "y_axis_showminmax": false,
+        "y_log_scale": false,
+        "rolling_type": "None",
+        "comparison_type": "values"
+      },
+      "description": "Data quality check results over time by layer and status"
+    },
+    {
+      "slice_name": "Pipeline Run Duration",
+      "viz_type": "line",
+      "datasource_name": "pipeline_runs",
+      "params": {
+        "datasource": "pipeline_runs",
+        "viz_type": "line",
+        "slice_id": null,
+        "url_params": {},
+        "granularity_sqla": "start_time",
+        "time_grain_sqla": "P1D",
+        "time_range": "Last 30 days",
+        "metrics": [
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "duration_seconds",
+              "type": "BIGINT"
+            },
+            "aggregate": "AVG",
+            "label": "Avg Duration (seconds)"
+          },
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "duration_seconds",
+              "type": "BIGINT"
+            },
+            "aggregate": "MAX",
+            "label": "Max Duration (seconds)"
+          }
+        ],
+        "adhoc_filters": [],
+        "groupby": [],
+        "limit": 25,
+        "row_limit": 50000,
+        "timeseries_limit_metric": null,
+        "order_desc": true,
+        "contribution": false,
+        "color_scheme": "supersetColors",
+        "show_legend": true,
+        "rich_tooltip": true,
+        "show_markers": true,
+        "line_interpolation": "linear",
+        "x_axis_format": "smart_date",
+        "x_axis_showminmax": false,
+        "y_axis_format": ",d",
+        "y_axis_label": "Duration (seconds)",
+        "y_axis_showminmax": false,
+        "y_log_scale": false,
+        "rolling_type": "None",
+        "comparison_type": "values"
+      },
+      "description": "Pipeline execution duration trends over time"
+    }
+  ]
+}

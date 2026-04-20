@@ -1,0 +1,259 @@
+{
+  "dashboard_title": "Business KPIs",
+  "description": "Business intelligence dashboard showing order metrics, customer lifetime value, and weather trends",
+  "slug": "business-kpis",
+  "published": true,
+  "css": "",
+  "json_metadata": {
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300,
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "filter_scopes": {},
+    "default_filters": "{}",
+    "chart_configuration": {}
+  },
+  "position_json": {
+    "DASHBOARD_VERSION_KEY": "v2",
+    "GRID_ID": {
+      "type": "GRID",
+      "id": "GRID_ID",
+      "children": [
+        "ROW-header",
+        "ROW-order-metrics",
+        "ROW-customer-ltv",
+        "ROW-revenue-trends"
+      ],
+      "parents": ["ROOT_ID"]
+    },
+    "ROOT_ID": {
+      "type": "ROOT",
+      "id": "ROOT_ID",
+      "children": ["GRID_ID"]
+    },
+    "ROW-header": {
+      "type": "ROW",
+      "id": "ROW-header",
+      "children": ["HEADER-1"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "HEADER-1": {
+      "type": "HEADER",
+      "id": "HEADER-1",
+      "meta": {
+        "text": "Business KPIs Dashboard"
+      }
+    },
+    "ROW-order-metrics": {
+      "type": "ROW",
+      "id": "ROW-order-metrics",
+      "children": ["CHART-order-metrics-over-time"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "CHART-order-metrics-over-time": {
+      "type": "CHART",
+      "id": "CHART-order-metrics-over-time",
+      "meta": {
+        "width": 12,
+        "height": 50,
+        "chartId": "order_metrics_over_time"
+      }
+    },
+    "ROW-customer-ltv": {
+      "type": "ROW",
+      "id": "ROW-customer-ltv",
+      "children": ["CHART-top-customers"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "CHART-top-customers": {
+      "type": "CHART",
+      "id": "CHART-top-customers",
+      "meta": {
+        "width": 12,
+        "height": 50,
+        "chartId": "top_customers_by_ltv"
+      }
+    },
+    "ROW-revenue-trends": {
+      "type": "ROW",
+      "id": "ROW-revenue-trends",
+      "children": ["CHART-revenue-trends"],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      }
+    },
+    "CHART-revenue-trends": {
+      "type": "CHART",
+      "id": "CHART-revenue-trends",
+      "meta": {
+        "width": 12,
+        "height": 50,
+        "chartId": "revenue_trends"
+      }
+    }
+  },
+  "slices": [
+    {
+      "slice_name": "Order Metrics Over Time",
+      "viz_type": "line",
+      "datasource_name": "order_metrics",
+      "params": {
+        "datasource": "order_metrics",
+        "viz_type": "line",
+        "slice_id": null,
+        "url_params": {},
+        "granularity_sqla": "date",
+        "time_grain_sqla": "P1D",
+        "time_range": "Last 90 days",
+        "metrics": [
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "total_orders",
+              "type": "BIGINT"
+            },
+            "aggregate": "SUM",
+            "label": "Total Orders"
+          },
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "unique_customers",
+              "type": "BIGINT"
+            },
+            "aggregate": "SUM",
+            "label": "Unique Customers"
+          },
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "avg_order_value",
+              "type": "DOUBLE"
+            },
+            "aggregate": "AVG",
+            "label": "Avg Order Value"
+          }
+        ],
+        "adhoc_filters": [],
+        "groupby": [],
+        "limit": 25,
+        "row_limit": 50000,
+        "timeseries_limit_metric": null,
+        "order_desc": true,
+        "contribution": false,
+        "color_scheme": "supersetColors",
+        "show_legend": true,
+        "rich_tooltip": true,
+        "show_markers": true,
+        "line_interpolation": "linear",
+        "x_axis_format": "smart_date",
+        "x_axis_showminmax": false,
+        "y_axis_format": ",.2f",
+        "y_axis_label": "Metric Value",
+        "y_axis_showminmax": false,
+        "y_log_scale": false,
+        "rolling_type": "None",
+        "comparison_type": "values"
+      },
+      "description": "Daily order metrics including total orders, unique customers, and average order value"
+    },
+    {
+      "slice_name": "Top Customers by Lifetime Value",
+      "viz_type": "dist_bar",
+      "datasource_name": "customer_lifetime_value",
+      "params": {
+        "datasource": "customer_lifetime_value",
+        "viz_type": "dist_bar",
+        "slice_id": null,
+        "url_params": {},
+        "granularity_sqla": null,
+        "time_grain_sqla": null,
+        "time_range": "No filter",
+        "metrics": [
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "total_spent",
+              "type": "DOUBLE"
+            },
+            "aggregate": "SUM",
+            "label": "Total Spent"
+          }
+        ],
+        "adhoc_filters": [],
+        "groupby": ["customer_id"],
+        "columns": [],
+        "row_limit": 10,
+        "contribution": false,
+        "color_scheme": "supersetColors",
+        "show_legend": false,
+        "show_bar_value": true,
+        "bar_stacked": false,
+        "order_bars": true,
+        "y_axis_format": "$,.2f",
+        "y_axis_label": "Total Spent",
+        "show_controls": true,
+        "x_axis_label": "Customer ID",
+        "bottom_margin": "auto",
+        "x_ticks_layout": "auto",
+        "reduce_x_ticks": false
+      },
+      "description": "Top 10 customers ranked by total lifetime spend"
+    },
+    {
+      "slice_name": "Revenue Trends",
+      "viz_type": "area",
+      "datasource_name": "order_metrics",
+      "params": {
+        "datasource": "order_metrics",
+        "viz_type": "area",
+        "slice_id": null,
+        "url_params": {},
+        "granularity_sqla": "date",
+        "time_grain_sqla": "P1D",
+        "time_range": "Last 90 days",
+        "metrics": [
+          {
+            "expressionType": "SIMPLE",
+            "column": {
+              "column_name": "total_revenue",
+              "type": "DOUBLE"
+            },
+            "aggregate": "SUM",
+            "label": "Total Revenue"
+          }
+        ],
+        "adhoc_filters": [],
+        "groupby": [],
+        "limit": 25,
+        "row_limit": 50000,
+        "timeseries_limit_metric": null,
+        "order_desc": true,
+        "contribution": false,
+        "color_scheme": "supersetColors",
+        "show_legend": true,
+        "rich_tooltip": true,
+        "show_markers": false,
+        "line_interpolation": "linear",
+        "stacked_style": "stack",
+        "x_axis_format": "smart_date",
+        "x_axis_showminmax": false,
+        "y_axis_format": "$,.2f",
+        "y_axis_label": "Revenue",
+        "y_axis_showminmax": false,
+        "y_log_scale": false,
+        "rolling_type": "None",
+        "comparison_type": "values",
+        "show_brush": "auto",
+        "send_time_range": false
+      },
+      "description": "Daily revenue trends over the last 90 days"
+    }
+  ]
+}
