@@ -1,0 +1,112 @@
+version: 2
+
+models:
+  - name: weather_clean
+    description: Cleaned and standardized weather data with proper typing and deduplication
+    columns:
+      - name: location_date
+        description: Composite primary key (location + date)
+        tests:
+          - unique
+          - not_null
+      
+      - name: location
+        description: Cleaned location name (trimmed, UTF-8 encoded)
+        tests:
+          - not_null
+      
+      - name: date
+        description: Date in ISO 8601 format (YYYY-MM-DD)
+        tests:
+          - not_null
+      
+      - name: temperature_celsius
+        description: Temperature value cast to DOUBLE
+      
+      - name: humidity_percent
+        description: Humidity percentage cast to DOUBLE
+      
+      - name: condition
+        description: Weather condition (empty strings converted to NULL)
+      
+      - name: _ingested_at
+        description: Original Bronze ingestion timestamp
+        tests:
+          - not_null
+      
+      - name: _silver_processed_at
+        description: Timestamp when record was processed into Silver layer
+        tests:
+          - not_null
+
+  - name: orders_clean
+    description: Cleaned and standardized order data with proper typing and deduplication
+    columns:
+      - name: order_id
+        description: Primary key - unique order identifier
+        tests:
+          - unique
+          - not_null
+      
+      - name: customer_id
+        description: Foreign key to customers table
+        tests:
+          - not_null
+      
+      - name: order_date
+        description: Order date in ISO 8601 format (YYYY-MM-DD)
+        tests:
+          - not_null
+      
+      - name: order_amount
+        description: Order amount cast to DOUBLE
+        tests:
+          - not_null
+      
+      - name: status
+        description: Order status (empty strings converted to NULL)
+      
+      - name: _ingested_at
+        description: Original Bronze ingestion timestamp
+        tests:
+          - not_null
+      
+      - name: _silver_processed_at
+        description: Timestamp when record was processed into Silver layer
+        tests:
+          - not_null
+
+  - name: customers_clean
+    description: Cleaned and standardized customer data with proper typing and deduplication
+    columns:
+      - name: customer_id
+        description: Primary key - unique customer identifier
+        tests:
+          - unique
+          - not_null
+      
+      - name: customer_name
+        description: Customer name (trimmed, UTF-8 encoded)
+        tests:
+          - not_null
+      
+      - name: email
+        description: Customer email address (lowercased, trimmed, empty strings to NULL)
+      
+      - name: signup_date
+        description: Signup date in ISO 8601 format (YYYY-MM-DD)
+        tests:
+          - not_null
+      
+      - name: country
+        description: Customer country (empty strings converted to NULL)
+      
+      - name: _ingested_at
+        description: Original Bronze ingestion timestamp
+        tests:
+          - not_null
+      
+      - name: _silver_processed_at
+        description: Timestamp when record was processed into Silver layer
+        tests:
+          - not_null

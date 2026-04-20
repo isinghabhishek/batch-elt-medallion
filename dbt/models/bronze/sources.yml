@@ -1,0 +1,89 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: Raw data landing zone with source fidelity preserved
+    database: iceberg_rest
+    schema: bronze
+    
+    tables:
+      - name: weather_data
+        description: Raw weather data from Open-Meteo API
+        columns:
+          - name: location
+            description: Location name or identifier
+          - name: date
+            description: Date string from source (not yet typed)
+          - name: temperature
+            description: Temperature value as string from source
+          - name: humidity
+            description: Humidity value as string from source
+          - name: condition
+            description: Weather condition description
+          - name: _source_name
+            description: Source connector name
+          - name: _ingested_at
+            description: Airbyte sync timestamp
+          - name: _file_path
+            description: S3 path to source file
+          - name: _has_null_key
+            description: Flag for records with null primary key
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        tests:
+          - row_count_greater_than_zero
+      
+      - name: orders
+        description: Raw order data from PostgreSQL seed database
+        columns:
+          - name: order_id
+            description: Order identifier from source
+          - name: customer_id
+            description: Customer identifier
+          - name: order_date
+            description: Order date string from source
+          - name: order_amount
+            description: Order amount as string from source
+          - name: status
+            description: Order status
+          - name: _source_name
+            description: Source connector name
+          - name: _ingested_at
+            description: Airbyte sync timestamp
+          - name: _file_path
+            description: S3 path to source file
+          - name: _has_null_key
+            description: Flag for records with null primary key
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        tests:
+          - row_count_greater_than_zero
+      
+      - name: customers
+        description: Raw customer data from PostgreSQL seed database
+        columns:
+          - name: customer_id
+            description: Customer identifier from source
+          - name: customer_name
+            description: Customer name
+          - name: email
+            description: Customer email address
+          - name: signup_date
+            description: Signup date string from source
+          - name: country
+            description: Customer country
+          - name: _source_name
+            description: Source connector name
+          - name: _ingested_at
+            description: Airbyte sync timestamp
+          - name: _file_path
+            description: S3 path to source file
+          - name: _has_null_key
+            description: Flag for records with null primary key
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        tests:
+          - row_count_greater_than_zero

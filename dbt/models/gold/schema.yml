@@ -1,0 +1,161 @@
+version: 2
+
+models:
+  - name: order_metrics
+    description: Daily order aggregations providing key business metrics for reporting and analytics
+    tests:
+      - row_count_greater_than_zero
+    columns:
+      - name: order_date
+        description: Date of orders (primary key for daily aggregation)
+        tests:
+          - unique
+          - not_null
+      
+      - name: total_orders
+        description: Total number of orders placed on this date
+        tests:
+          - not_null
+          - non_negative_value
+      
+      - name: total_revenue
+        description: Sum of all order amounts for this date
+        tests:
+          - not_null
+          - non_negative_value
+      
+      - name: avg_order_value
+        description: Average order amount for this date
+        tests:
+          - not_null
+          - non_negative_value
+      
+      - name: unique_customers
+        description: Count of distinct customers who placed orders on this date
+        tests:
+          - not_null
+          - non_negative_value
+      
+      - name: _gold_updated_at
+        description: Timestamp when this record was last updated in the Gold layer
+        tests:
+          - not_null
+
+  - name: customer_lifetime_value
+    description: Customer lifetime metrics aggregating order history and customer behavior
+    tests:
+      - row_count_greater_than_zero
+    columns:
+      - name: customer_id
+        description: Primary key - unique customer identifier
+        tests:
+          - unique
+          - not_null
+      
+      - name: customer_name
+        description: Customer full name from Silver layer
+        tests:
+          - not_null
+      
+      - name: email
+        description: Customer email address
+      
+      - name: signup_date
+        description: Date when customer signed up
+        tests:
+          - not_null
+      
+      - name: country
+        description: Customer country
+      
+      - name: first_order_date
+        description: Date of customer's first order
+        tests:
+          - not_null
+      
+      - name: last_order_date
+        description: Date of customer's most recent order
+        tests:
+          - not_null
+      
+      - name: total_orders
+        description: Total number of orders placed by this customer
+        tests:
+          - not_null
+          - positive_value
+      
+      - name: total_spent
+        description: Total amount spent by this customer across all orders
+        tests:
+          - not_null
+          - non_negative_value
+      
+      - name: avg_order_value
+        description: Average order amount for this customer
+        tests:
+          - not_null
+          - non_negative_value
+      
+      - name: days_since_last_order
+        description: Number of days since customer's last order
+        tests:
+          - non_negative_value
+      
+      - name: _gold_updated_at
+        description: Timestamp when this record was last updated in the Gold layer
+        tests:
+          - not_null
+
+  - name: pipeline_runs
+    description: Observability table tracking DAG run metadata for pipeline monitoring (populated by Airflow)
+    columns:
+      - name: dag_run_id
+        description: Unique identifier for the DAG run
+      
+      - name: start_time
+        description: Timestamp when the pipeline run started
+      
+      - name: end_time
+        description: Timestamp when the pipeline run completed
+      
+      - name: status
+        description: Pipeline run status (success, failed, running)
+      
+      - name: bronze_row_count
+        description: Number of rows processed in Bronze layer
+      
+      - name: silver_row_count
+        description: Number of rows processed in Silver layer
+      
+      - name: gold_row_count
+        description: Number of rows processed in Gold layer
+      
+      - name: duration_seconds
+        description: Total duration of the pipeline run in seconds
+
+  - name: dq_results
+    description: Observability table tracking data quality check results across all layers (populated by Airflow and dbt tests)
+    columns:
+      - name: check_id
+        description: Unique identifier for the data quality check
+      
+      - name: check_name
+        description: Name of the data quality check
+      
+      - name: layer
+        description: Data layer where check was performed (bronze, silver, gold)
+      
+      - name: table_name
+        description: Name of the table being checked
+      
+      - name: check_timestamp
+        description: Timestamp when the check was performed
+      
+      - name: status
+        description: Check result status (passed, failed, warning)
+      
+      - name: row_count
+        description: Number of rows affected by the check
+      
+      - name: error_message
+        description: Error message if check failed

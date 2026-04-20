@@ -1,0 +1,29 @@
+# dbt/profiles.yml
+# =================
+# dbt connection profile for the Medallion Pipeline.
+#
+# Uses DuckDB in-memory mode with the httpfs and iceberg extensions loaded.
+# S3 settings point to the local MinIO instance (S3-compatible object storage).
+#
+# Environment variables required (set in .env):
+#   MINIO_ROOT_USER     - MinIO access key (S3 access key ID)
+#   MINIO_ROOT_PASSWORD - MinIO secret key (S3 secret access key)
+#
+# Note: path ':memory:' means DuckDB runs in-memory per dbt invocation.
+#       For persistent tables, change to a file path e.g. '/data/warehouse.db'
+
+medallion_pipeline:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ':memory:'
+      extensions:
+        - iceberg
+        - httpfs
+      settings:
+        s3_endpoint: minio:9000
+        s3_access_key_id: "{{ env_var('MINIO_ROOT_USER') }}"
+        s3_secret_access_key: "{{ env_var('MINIO_ROOT_PASSWORD') }}"
+        s3_use_ssl: false
+        s3_url_style: path

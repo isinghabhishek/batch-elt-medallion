@@ -1,0 +1,47 @@
+# dbt/dbt_project.yml
+# ====================
+# dbt project configuration for the Medallion Pipeline.
+#
+# Defines the three-layer model structure:
+#   bronze/ - External tables pointing to raw Parquet files in MinIO s3://bronze/
+#   silver/ - Incremental models: cleaned, typed, deduplicated data in s3://silver/
+#   gold/   - Incremental models: business aggregates and KPIs in s3://gold/
+#
+# Adapter  : dbt-duckdb (DuckDB with httpfs + iceberg extensions)
+# Profile  : medallion_pipeline (see profiles.yml)
+#
+# Commands:
+#   dbt run              - Run all models in dependency order
+#   dbt run --select silver  - Run only Silver layer models
+#   dbt test             - Run all schema and data quality tests
+#   dbt docs generate    - Generate lineage documentation site
+
+name: medallion_pipeline
+
+version: 1.0.0
+config-version: 2
+
+profile: medallion_pipeline
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  medallion_pipeline:
+    bronze:
+      +materialized: external
+      +location: "s3://bronze/"
+    silver:
+      +materialized: incremental
+      +unique_key: id
+      +on_schema_change: append_new_columns
+      +location: "s3://silver/"
+    gold:
+      +materialized: incremental
+      +unique_key: date
+      +location: "s3://gold/"
